@@ -31,11 +31,10 @@ def parse(dirs):
 w1 = parse(inp1)
 w2 = parse(inp2)
 
-for point in w1:
-    if point in w2:
-        md = abs(point[0]) + abs(point[1])
-        p1 = md if p1 == 0 or md < p1 else p1
-        p2 = steps[point] if p2 == 0 or steps[point] < p2 else p2
+for point in w1 & w2:
+    md = abs(point[0]) + abs(point[1])
+    p1 = md if p1 == 0 or md < p1 else p1
+    p2 = steps[point] if p2 == 0 or steps[point] < p2 else p2
 
 print(f'Part 1: {p1}')
 print(f'Part 2: {p2}')
