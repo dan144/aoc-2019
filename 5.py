@@ -2,6 +2,8 @@
 
 import string
 
+from copy import copy
+
 inp = []
 with open('5', 'r') as f:
     inp = list(map(int, f.readline().split(',')))
@@ -13,10 +15,8 @@ POS = 0
 IMM = 1
 mode = POS
 
-def run(reg, m_val, n, v):
+def run(reg, m_val):
     i = 0
-    # reg[1] = n
-    # reg[2] = v
     while True:
         ins = reg[i]
         mp1 = int(ins / 100) % 10
@@ -63,11 +63,10 @@ def run(reg, m_val, n, v):
             break
     return m_val
 
-m_val = 5
-from copy import copy
 reg = copy(inp)
-m_val = run(reg, m_val, 0, 0)
-p1 = m_val
+p1 = run(reg, 1)
+reg = copy(inp)
+p2 = run(reg, 5)
 
 print(f'Part 1: {p1}')
 print(f'Part 2: {p2}')
