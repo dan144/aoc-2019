@@ -41,13 +41,29 @@ def run(reg, m_val, n, v):
         elif ins == 4:
             m_val = reg[r1]
             i += 2
-            print(m_val)
+            print('Test: {}'.format(m_val))
+        elif ins == 5:
+            if reg[r1]:
+                i = reg[r2]
+            else:
+                i += 3
+        elif ins == 6:
+            if reg[r1] == 0:
+                i = reg[r2]
+            else:
+                i += 3
+        elif ins == 7:
+            reg[r3] = 1 if reg[r1] < reg[r2] else 0
+            i += 4
+        elif ins == 8:
+            reg[r3] = 1 if reg[r1] == reg[r2] else 0
+            i += 4
         else:
-            print(f'error: {ins}')
+            print(f'Bad opcode: {ins}')
             break
     return m_val
 
-m_val = 1
+m_val = 5
 from copy import copy
 reg = copy(inp)
 m_val = run(reg, m_val, 0, 0)
