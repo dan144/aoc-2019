@@ -15,7 +15,7 @@ POS = 0
 IMM = 1
 mode = POS
 
-def run(reg, m_val):
+def run(reg, value):
     i = 0
     while True:
         ins = reg[i]
@@ -36,12 +36,16 @@ def run(reg, m_val):
             reg[r3] = reg[r1] * reg[r2]
             i += 4
         elif ins == 3:
-            reg[r1] = m_val
+            reg[r1] = value
             i += 2
         elif ins == 4:
-            m_val = reg[r1]
+            value = reg[r1]
             i += 2
-            print('Test: {}'.format(m_val))
+            if reg[i] % 100 == 99:
+                line = f'Diagnostic code: {value}'
+            else:
+                line = f'Test: {value}{" - FAILED " if value != 0 else ""}'
+            print(line)
         elif ins == 5:
             if reg[r1]:
                 i = reg[r2]
@@ -59,9 +63,9 @@ def run(reg, m_val):
             reg[r3] = 1 if reg[r1] == reg[r2] else 0
             i += 4
         else:
-            print(f'Bad opcode: {ins}')
+            print(f'Bad opcode: {ins} - FAILED')
             break
-    return m_val
+    return value
 
 reg = copy(inp)
 p1 = run(reg, 1)
