@@ -12,62 +12,42 @@ with open('6', 'r') as f:
 p1 = 0
 p2 = 0
 
-orbits = {}
-for inner, outer in inp:
-    if inner in orbits:
-        orbits[inner].append(outer)
-    else:
-        orbits[inner] = [outer]
+orbits = {outer: inner for inner, outer in inp}
+for planet in orbits.keys():
+    while orbits.get(planet):
+        p1 += 1
+        planet = orbits.get(planet)
 
-o = orbits['COM']
-level = 0
-while o:
-    level += 1
-    p1 += len(o) * level
-    n = []
-    for b in o:
-        n.extend(orbits.get(b, []))
-    o = n
+you = [orbits['YOU']]
+while orbits.get(you[-1]):
+    you.append(orbits.get(you[-1]))
+san = [orbits['SAN']]
+while san[-1] not in you:
+    san.append(orbits.get(san[-1]))
 
-def parent(k):
-    for i, o in orbits.items():
-        if k in o:
-            return [i]
-    return []
+you = you[:you.index(san[-1])]
+p2 = len(san) + len(you) - 1
 
-you = parent('YOU')
-while parent(you[0]):
-    you = parent(you[0]) + you
-
-san = parent('SAN')
-while parent(san[0]):
-    san = parent(san[0]) + san
-
-for i in range(len(you)):
-    if you[i] in san:
-        p2 = len(you) + len(san) - 2 - i - san.index(you[i])
-        p2_index = i
-
-print(f'Part 1: {p1}')
-print(f'Part 2: {p2}')
+print('Part 1:', p1)
+print('Part 2:', p2)
 
 # vizualize
-you = you[p2_index:]
-san = san[san.index(you[0]):]
 you_hops = '->'.join(you)
+print(you_hops)
 san_hops = '->'.join(san)
 with open('dot6', 'w') as f:
     f.write('digraph ORBITS {\n')
-    f.write('    node[color=none; shape=plaintext];\n')
-    f.write('    nodesep=0.1; \n')
+    f.write('    nodesep=0.1;\n')
+    f.write('    node[shape=circle];\n')
     f.write('    sep=0.1; \n')
     f.write('    edge[weight=1];\n')
-    for inner, outers in orbits.items():
-        for outer in outers:
-            path = '{}->{}'.format(inner, outer)
-            color = 'red' if path in you_hops or path in san_hops or outer in {'YOU', 'SAN'} else 'black'
-            line = '    "{}" -> "{}" [ color={} ];\n'.format(inner, outer, color)
-            f.write(line)
+    for outer, inner in orbits.items():
+        path = '{}->{}'.format(outer, inner)
+        if '785' in path:
+            print(path)
+        color = 'red' if path in you_hops or path in san_hops or outer in {'YOU', 'SAN'} else 'black'
+        line = '    "{}" -> "{}" [ color={} ];\n'.format(inner, outer, color)
+        f.write(line)
     f.write('    YOU [color=red,style=filled];\n')
     f.write('    SAN [color=red,style=filled];\n')
     f.write('}')
