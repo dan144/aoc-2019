@@ -25,15 +25,14 @@ san = [orbits['SAN']]
 while san[-1] not in you:
     san.append(orbits.get(san[-1]))
 
-you = you[:you.index(san[-1])]
-p2 = len(san) + len(you) - 1
+you = you[:you.index(san[-1])+1]
+p2 = len(san) + len(you) - 2
 
 print('Part 1:', p1)
 print('Part 2:', p2)
 
 # vizualize
 you_hops = '->'.join(you)
-print(you_hops)
 san_hops = '->'.join(san)
 with open('dot6', 'w') as f:
     f.write('digraph ORBITS {\n')
@@ -43,11 +42,10 @@ with open('dot6', 'w') as f:
     f.write('    edge[weight=1];\n')
     for outer, inner in orbits.items():
         path = '{}->{}'.format(outer, inner)
-        if '785' in path:
-            print(path)
         color = 'red' if path in you_hops or path in san_hops or outer in {'YOU', 'SAN'} else 'black'
-        line = '    "{}" -> "{}" [ color={} ];\n'.format(inner, outer, color)
-        f.write(line)
+        f.write('    "{}" -> "{}" [ color={} ];\n'.format(inner, outer, color))
+        if color == 'red':
+            f.write('    "{}" [color=red];\n'.format(inner))
     f.write('    YOU [color=red,style=filled];\n')
     f.write('    SAN [color=red,style=filled];\n')
     f.write('}')
