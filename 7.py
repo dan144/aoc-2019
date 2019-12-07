@@ -3,6 +3,7 @@
 import string
 
 from copy import copy
+from itertools import permutations
 
 inp = []
 with open('7', 'r') as f:
@@ -65,7 +66,21 @@ def run(reg, i, i_value):
             break
     return reg, i, None
 
-from itertools import permutations
+perms = permutations([0, 1, 2, 3, 4])
+m_m = 0
+vals = []
+for p in perms:
+    m = [0]
+    for phase in p:
+        reg = copy(inp)
+        _, _, amp = run(reg, 0, [phase, m[-1]])
+        m.append(amp)
+        vals.append(amp)
+    val = max(vals)
+    if val > m_m:
+        m_m = val
+        p1 = m_m
+
 perms = permutations([5, 6, 7, 8, 9])
 m_m = 0
 vals = []
@@ -86,12 +101,10 @@ for p in perms:
         if amp is None:
             break
         vals.append(amp)
-    val = vals[-1] # max(vals)
-    print(val)
+    val = vals[-1]
     if val > m_m:
         m_m = val
-        p1 = m_m
+        p2 = m_m
 
-print('should  139629729')
 print(f'Part 1: {p1}')
 print(f'Part 2: {p2}')
