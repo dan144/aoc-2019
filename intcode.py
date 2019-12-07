@@ -5,7 +5,7 @@ class Intcode:
     POS = 0
     IMM = 1
 
-    def __init__(self, reg, inputs):
+    def __init__(self, reg, inputs=[]):
         self.reg = copy(reg)
         self.ip = 0
         self.done = False
@@ -67,3 +67,9 @@ class Intcode:
 
     def run_until_output(self):
         return self.run(until_output=True)
+
+    def run_with_nv(self, noun, verb):
+        self.reg[1] = noun
+        self.reg[2] = verb
+        self.run()
+        return self.reg[0]
