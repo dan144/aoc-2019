@@ -17,6 +17,7 @@ IMM = 1
 mode = POS
 
 def run(reg, i, i_value):
+    value = None
     while True:
         ins = reg[i]
         mp1 = int(ins / 100) % 10
@@ -44,7 +45,7 @@ def run(reg, i, i_value):
         elif ins == 4:
             value = reg[r1]
             i += 2
-            return reg, i, value
+            break
         elif ins == 5:
             if reg[r1]:
                 i = reg[r2]
@@ -64,26 +65,27 @@ def run(reg, i, i_value):
         else:
             print(f'Bad opcode: {ins} - FAILED')
             break
-    return reg, i, None
+    return reg, i, i_value, value
 
 for p in permutations([0, 1, 2, 3, 4]):
     amp = 0
     for phase in p:
         reg = copy(inp)
-        _, _, amp = run(reg, 0, [phase, amp])
+        amp = run(reg, 0, [phase, amp])[-1]
     p1 = max(p1, amp)
 
 for p in permutations([5, 6, 7, 8, 9]):
     regs = []
-    for _ in range(5):
+    inps = []
+    for x in range(5):
         regs.append(copy(inp))
+        inps.append([p[x]])
     ips = [0] * 5
     amp = 0
-    first = True
     while amp is not None:
         for x in range(5):
-            regs[x], ips[x], amp = run(regs[x], ips[x], [p[x], amp] if first else [amp])
-        first = False
+            inps[x].append(amp)
+            regs[x], ips[x], inps[x], amp = run(regs[x], ips[x], inps[x])
         last_amp = last_amp if amp is None else amp
     p2 = max(p2, last_amp)
 
