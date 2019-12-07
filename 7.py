@@ -92,12 +92,13 @@ for p in permutations([5, 6, 7, 8, 9]):
         for x in range(5):
             inps[x].append(amp)
             regs[x], ips[x], inps[x], amp = run(regs[x], ips[x], inps[x])
+            if amp is not None:
+                amps.append(amp)
         last_amp = last_amp if amp is None else amp
-        amps.append(amp)
     p2 = max(p2, last_amp)
     if p2 == last_amp:
         p2_perm = tuple(map(str, p))
-        p2_amps = tuple(map(str, amps[:-1]))
+        p2_amps = tuple(map(str, amps))
 
 print(f'Part 1: {p1}')
 print(f'Part 2: {p2}')
@@ -134,7 +135,7 @@ for i in range(len(p2_amps)):
         line = '0->'
     elif i % len(p2_perm) == 0:
         print(line)
-        print('   .' + '-' * (len(line) - 4 - len(p2_amps[i-1])) + "'")
+        print('   .' + '-' * (len(line) - 5) + "'")
         print('   v')
         line = '   '
     line += p2_amps[i]
