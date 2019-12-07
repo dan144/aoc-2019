@@ -31,7 +31,7 @@ def run(reg, i, i_value):
         try:
             r3 = i+3 if mp3 == IMM else reg[i+3]
         except IndexError:
-            pass
+            pass # if this happens, you don't need it
         if ins == 1:
             reg[r3] = reg[r1] + reg[r2]
             i += 4
@@ -66,45 +66,26 @@ def run(reg, i, i_value):
             break
     return reg, i, None
 
-perms = permutations([0, 1, 2, 3, 4])
-m_m = 0
-vals = []
-for p in perms:
-    m = [0]
+for p in permutations([0, 1, 2, 3, 4]):
+    amp = 0
     for phase in p:
         reg = copy(inp)
-        _, _, amp = run(reg, 0, [phase, m[-1]])
-        m.append(amp)
-        vals.append(amp)
-    val = max(vals)
-    if val > m_m:
-        m_m = val
-        p1 = m_m
+        _, _, amp = run(reg, 0, [phase, amp])
+    p1 = max(p1, amp)
 
-perms = permutations([5, 6, 7, 8, 9])
-m_m = 0
-vals = []
-for p in perms:
-    val = 0
+for p in permutations([5, 6, 7, 8, 9]):
     regs = []
     for _ in range(5):
         regs.append(copy(inp))
     ips = [0] * 5
     amp = 0
     first = True
-    while True:
+    while amp is not None:
         for x in range(5):
-            reg = regs[x]
-            ip = ips[x]
-            regs[x], ips[x], amp = run(reg, ip, [p[x], amp] if first else [amp])
+            regs[x], ips[x], amp = run(regs[x], ips[x], [p[x], amp] if first else [amp])
         first = False
-        if amp is None:
-            break
-        vals.append(amp)
-    val = vals[-1]
-    if val > m_m:
-        m_m = val
-        p2 = m_m
+        last_amp = last_amp if amp is None else amp
+    p2 = max(p2, last_amp)
 
 print(f'Part 1: {p1}')
 print(f'Part 2: {p2}')
