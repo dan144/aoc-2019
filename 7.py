@@ -15,9 +15,7 @@ POS = 0
 IMM = 1
 mode = POS
 
-def run(reg, i_value):
-    i = 0
-    values = []
+def run(reg, i, i_value):
     while True:
         ins = reg[i]
         mp1 = int(ins / 100) % 10
@@ -29,7 +27,10 @@ def run(reg, i_value):
             break
         r1 = i+1 if mp1 == IMM else reg[i+1]
         r2 = i+2 if mp2 == IMM else reg[i+2]
-        r3 = i+3 if mp3 == IMM else reg[i+3]
+        try:
+            r3 = i+3 if mp3 == IMM else reg[i+3]
+        except IndexError:
+            pass
         if ins == 1:
             reg[r3] = reg[r1] + reg[r2]
             i += 4
@@ -41,12 +42,8 @@ def run(reg, i_value):
             i += 2
         elif ins == 4:
             value = reg[r1]
-            values.append(value)
             i += 2
-            if reg[i] % 100 == 99:
-                line = f'Diagnostic code: {value}'
-            else:
-                line = f'Test: {value}{" - FAILED " if value != 0 else ""}'
+            return reg, i, value
         elif ins == 5:
             if reg[r1]:
                 i = reg[r2]
@@ -66,29 +63,35 @@ def run(reg, i_value):
         else:
             print(f'Bad opcode: {ins} - FAILED')
             break
-    return values
+    return reg, i, None
 
 from itertools import permutations
-perms = permutations([0, 1, 2, 3, 4])
+perms = permutations([5, 6, 7, 8, 9])
 m_m = 0
 vals = []
 for p in perms:
-    m = [0]
-    for phase in p:
-        reg = copy(inp)
-        amp = run(reg, [phase, m[-1]])
-        print(amp)
-        m.append(amp[0])
-        vals.append(amp[0])
-    val = max(vals)
+    val = 0
+    regs = []
+    for _ in range(5):
+        regs.append(copy(inp))
+    ips = [0] * 5
+    amp = 0
+    first = True
+    while True:
+        for x in range(5):
+            reg = regs[x]
+            ip = ips[x]
+            regs[x], ips[x], amp = run(reg, ip, [p[x], amp] if first else [amp])
+        first = False
+        if amp is None:
+            break
+        vals.append(amp)
+    val = vals[-1] # max(vals)
     print(val)
-    # m = int(str('{:05}'.format(amp[0]))[::-1])
     if val > m_m:
         m_m = val
         p1 = m_m
 
-# not 12340
-# not 96710
-# not 97610
+print('should  139629729')
 print(f'Part 1: {p1}')
 print(f'Part 2: {p2}')
