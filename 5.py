@@ -10,9 +10,9 @@ p1 = 0
 p2 = 0
 
 comp = Intcode(inp, [1])
-p1 = comp.run()
+p1 = comp.run_with_output()
 print(f'Part 1: {p1}')
 
 comp = Intcode(inp, [5])
-p2 = comp.run()
+p2 = comp.run_with_output()
 print(f'Part 2: {p2}')
