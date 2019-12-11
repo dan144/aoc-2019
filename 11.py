@@ -35,13 +35,13 @@ def display(points):
 
     o = []
     for i in range(m_x+1):
-        o.append(['#'] * (m_y+1))
+        o.append(['.'] * (m_y+1))
 
     for point, color in points.items():
         if color == WHITE:
             x = mx_x - point[0]
             y = point[1] - mx_y - 1
-            o[x][y] = '.'
+            o[x][y] = '#'
 
     for line in o:
         print(''.join(line))
@@ -67,7 +67,6 @@ def get_points(c):
 
 points = get_points(BLACK)
 p1 = len(points.keys())
-display(points)
 print(f'Part 1: {p1}')
 
 points = get_points(WHITE)
