@@ -40,7 +40,7 @@ def display(points):
     for point, color in points.items():
         if color == WHITE:
             x = mx_x - point[0]
-            y = point[1] - mx_y
+            y = point[1] - mx_y - 1
             o[x][y] = '.'
 
     for line in o:
