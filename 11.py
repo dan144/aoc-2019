@@ -11,8 +11,10 @@ p2 = 0
 
 BLACK = 0
 WHITE = 1
+
 LEFT = 0
 RIGHT = 1
+
 UP = 0
 RIGHT = 1
 DOWN = 2
@@ -21,58 +23,53 @@ LEFT = 3
 dx = {UP: 1, DOWN: -1}
 dy = {LEFT: -1, RIGHT: 1}
 
-direction = UP
-board = {}
-x, y = 0, 0
-comp = Intcode(inp, [BLACK])
-while not comp.done:
-    color = comp.run_until_output()
-    board[(x, y)] = color
-    turn = comp.run_until_output()
-    direction = (direction + (1 if turn == RIGHT else -1)) % 4
-    x += dx.get(direction, 0)
-    y += dy.get(direction, 0)
 
-    n_color = board.get((x, y), BLACK)
-    comp.inputs.append(n_color)
+def display(points):
+    mn_x = min({x for x, _ in points.keys()})
+    mn_y = min({y for _, y in points.keys()})
+    mx_x = max({x for x, _ in points.keys()})
+    mx_y = max({y for _, y in points.keys()})
 
-p1 = len(board.keys())
+    m_x = mx_x - mn_x
+    m_y = mx_y - mn_y
 
+    o = []
+    for i in range(m_x+1):
+        o.append(['#'] * (m_y+1))
+
+    for point, color in points.items():
+        if color == WHITE:
+            x = mx_x - point[0]
+            y = point[1] - mx_y
+            o[x][y] = '.'
+
+    for line in o:
+        print(''.join(line))
+
+
+def get_points(c):
+    direction = UP
+    points = {}
+    x, y = 0, 0
+    comp = Intcode(inp, [c])
+    while not comp.done:
+        color = comp.run_until_output()
+        points[(x, y)] = color
+        turn = comp.run_until_output()
+        direction = (direction + (1 if turn == RIGHT else -1)) % 4
+        x += dx.get(direction, 0)
+        y += dy.get(direction, 0)
+
+        n_color = points.get((x, y), BLACK)
+        comp.inputs.append(n_color)
+    return points
+
+
+points = get_points(BLACK)
+p1 = len(points.keys())
+display(points)
 print(f'Part 1: {p1}')
 
-direction = UP
-board = {}
-x, y = 0, 0
-comp = Intcode(inp, [WHITE])
-while not comp.done:
-    color = comp.run_until_output()
-    board[(x, y)] = color
-    turn = comp.run_until_output()
-    direction = (direction + (1 if turn == RIGHT else -1)) % 4
-    x += dx.get(direction, 0)
-    y += dy.get(direction, 0)
-
-    n_color = board.get((x, y), BLACK)
-    comp.inputs.append(n_color)
-
-mn_x = min({x for x, _ in board.keys()})
-mn_y = min({y for _, y in board.keys()})
-mx_x = max({x for x, _ in board.keys()})
-mx_y = max({y for _, y in board.keys()})
-print(mn_x, mx_x, mn_y, mx_y)
-
-m_x = mx_x - mn_x
-m_y = mx_y - mn_y
-
-o = []
-for i in range(m_x+1):
-    o.append(['#'] * (m_y+1))
-
-print(m_x, m_y)
-
-for point, color in board.items():
-    if color == WHITE:
-        o[point[0]*-1][point[1]*-1] = '.'
-
-for line in o:
-    print(''.join(line))
+points = get_points(WHITE)
+print('Part 2:')
+display(points)
