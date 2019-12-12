@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-from intcode import Intcode
+import re
+
+from copy import deepcopy
+from math import gcd
 
 inp = []
 with open('12', 'r') as f:
@@ -18,15 +21,14 @@ VY = 4
 VZ = 5
 
 moons = []
-import re
 for line in inp:
     moon = list(map(int, re.findall(r'-?\d+', line)))
     moon += [0, 0, 0]
     moons.append(moon)
-for moon in moons:
-    print(moon)
+o_pos = deepcopy(moons)
 
-for t in range(1000):
+def step():
+    global moons
     for i in range(len(moons)):
         for j in range(len(moons)):
             if i <= j:
@@ -46,8 +48,8 @@ for t in range(1000):
         for p in (X, Y, Z):
             moon[p] += moon[p+3]
 
-t += 1
-print(t)
+for t in range(1000):
+    step()
 for moon in moons:
     PE = sum(map(abs, moon[:VX]))
     KE = sum(map(abs, moon[VX:]))
@@ -56,5 +58,28 @@ for moon in moons:
 print(f'Part 1: {p1}')
 
 
+def lcm(ns):
+    v = 1
+    for x in ns:
+        v = v * x // gcd(v, x)
+    return v
 
+
+moons = deepcopy(o_pos)
+r = [0, 0, 0]
+step()
+steps = 1
+while not all(r):
+    for x in range(3):
+        if r[x]:
+            continue
+        for i in range(len(moons)):
+            if moons[i][x+3] != 0 or moons[i][x] != o_pos[i][x]:
+                break
+        else:
+            r[x] = steps
+    step()
+    steps += 1
+
+p2 = lcm(r)
 print(f'Part 2: {p2}')
