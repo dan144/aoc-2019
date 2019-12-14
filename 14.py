@@ -12,19 +12,18 @@ with open('14', 'r') as f:
 p1 = 0
 p2 = 0
 
-def make_convs():
-    convs = {}
-    for line in inp:
-        i, o = line.split(' => ')
-        oq, o = o.split(' ')
-        oq = int(oq)
-        convs[o] = (oq, {})
-        for x in i.split(', '):
-            q, n = x.split(' ')
-            convs[o][1][n]  = int(q)
-    return convs
+convs = {}
+for line in inp:
+    i, o = line.split(' => ')
+    oq, o = o.split(' ')
+    oq = int(oq)
+    convs[o] = (oq, {})
+    for x in i.split(', '):
+        q, n = x.split(' ')
+        convs[o][1][n]  = int(q)
 
-def all_needs(convs, reqs):
+
+def all_needs(reqs):
     nest = set(reqs.keys())
     while True:
         n_nest = copy(nest)
@@ -39,8 +38,7 @@ def all_needs(convs, reqs):
 
 
 def make_x(x):
-    convs = deepcopy(o_conv)
-    reqs = convs['FUEL'][1]
+    reqs = deepcopy(convs['FUEL'][1])
     for k in reqs.keys():
         reqs[k] *= x
     i = 0
@@ -51,37 +49,39 @@ def make_x(x):
             continue
         r = reqs.pop(k)
         q, n = convs[k]
-        if k in all_needs(convs, reqs):
+        if k in all_needs(reqs):
             reqs[k] = r
             continue
         for need, n_q in n.items():
-            if False:
-                quan = r / q * n_q
-            else:
-                quan = math.ceil(r / q) * n_q
+            quan = math.ceil(r / q) * n_q
             if need in reqs:
                 reqs[need] += quan
             else:
                 reqs[need] = quan
     return reqs
 
-o_conv = make_convs()
 reqs = make_x(1)
 p1 = reqs['ORE']
 print(f'Part 1: {p1}')
 
-TRL = 1000000000000
-p2 = TRL // p1
-while True:
-    reqs = make_x(p2)
-    if reqs['ORE'] > TRL:
-        p2 -= 1
-        break
-    p2 = int(p2 * 1.0006)
-while True:
-    reqs = make_x(p2)
-    if reqs['ORE'] <= TRL:
-        break
-    p2 -= 1
+def search(n):
+    marg = 1
+    up = True
+    while n * marg >= .1:
+        while True:
+            reqs = make_x(n)
+            if up:
+                if reqs['ORE'] > TRL:
+                    break
+            else:
+                if reqs['ORE'] <= TRL:
+                    break
+            n = int(n * (1 + marg * (1 if up else -1)))
+        up = not up
+        marg /= 10
+    return n
 
+
+TRL = 1000000000000
+p2 = search(TRL)
 print(f'Part 2: {p2}')
