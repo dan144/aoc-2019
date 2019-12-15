@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
+import curses
+import sys
+
 from intcode import Intcode
+
+show_prog = len(sys.argv) == 2
+if show_prog:
+    screen = curses.initscr()
 
 inp = []
 with open('15', 'r') as f:
@@ -26,6 +33,52 @@ reverse = {N: S, S: N, W: E, E: W}
 points = {}
 o_x, o_y = 21, 21 # offset value to make minimum x, y values 0, 0
 
+if show_prog:
+    # 41x41 board known from running normal solution
+    mx_x, mx_y = 41, 41
+    board = []
+    for y in range(mx_y):
+        board.append([0] * mx_x)
+    dist = []
+    for y in range(mx_y):
+        dist.append([None] * mx_x)
+
+def pretty(s):
+    if s == WALL:
+        return '#'
+    if s == OPEN:
+        return ' '
+    if s == OXY:
+        return '!'
+    return 'D'
+
+def solve_p2():
+    p2 = 0
+    for line in dist:
+        p2 = max(set(filter(lambda x: x is not None, line)) | {p2})
+    return p2
+
+def display():
+    screen.erase()
+    for l_y in range(len(board)):
+        row = board[l_y]
+        line = ''
+        for l_x in range(len(row)):
+            if dist[l_y][l_x]:
+                line += 'O'
+            elif not p1 and (l_y, l_x) == (y, x):
+                line += 'D'
+            else:
+                line += pretty(row[l_x])
+        screen.addstr(line + '\n')
+
+    if p1:
+        screen.addstr(f'Part 1: {p1}\n')
+    p2 = solve_p2()
+    if p2:
+        screen.addstr(f'Part 2: {p2}\n')
+    screen.refresh()
+
 x, y = o_x, o_y
 moves_left = {(x, y): [N, S, E, W]}
 moves = []
@@ -50,6 +103,8 @@ while moves_left:
     m_x = x + DX.get(move, 0)
     m_y = y + DY.get(move, 0)
     points[m_x, m_y] = res
+    if show_prog:
+        board[m_y][m_x] = res
     if res:
         if res == 2:
             oxy = (m_x, m_y)
@@ -57,6 +112,9 @@ while moves_left:
         moves.append(move)
         if (x, y) not in moves_left:
             moves_left[x, y] = [N, E, S, W]
+
+    if show_prog:
+        display()
 
 mx_x = max({x for x, _ in points.keys()}) + 1
 mx_y = max({y for _, y in points.keys()}) + 1
@@ -68,18 +126,6 @@ for y in range(mx_y):
 for point, spot in points.items():
     board[point[1]][point[0]] = spot
 board[o_y][o_x] = DROID
-
-def pretty(s):
-    if s == WALL:
-        return '#'
-    if s == OPEN:
-        return ' '
-    if s == OXY:
-        return '!'
-    return 'D'
-
-for line in board:
-    print(''.join(map(pretty, line)))
 
 def map_adj(dist, locs):
     n_locs = set()
@@ -105,7 +151,10 @@ while dist[oxy[1]][oxy[0]] is None:
     locs = map_adj(dist, locs)
 
 p1 = dist[oxy[1]][oxy[0]]
-print(f'Part 1: {p1}')
+if not show_prog:
+    for line in board:
+        print(''.join(map(pretty, line)))
+    print(f'Part 1: {p1}')
 
 dist = []
 for y in range(mx_y):
@@ -114,9 +163,13 @@ dist[oxy[1]][oxy[0]] = 0
 locs = {(oxy[1], oxy[0])}
 while locs:
     locs = map_adj(dist, locs)
+    if show_prog:
+        display()
 
-for line in dist:
-    p2 = max(set(filter(lambda x: x is not None, line)) | {p2})
+if show_prog:
+    input()
+    curses.endwin()
+else:
+    p2 = solve_p2()
+    print(f'Part 2: {p2}')
 
-
-print(f'Part 2: {p2}')
