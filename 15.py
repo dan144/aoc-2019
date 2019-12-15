@@ -65,11 +65,8 @@ while moves_left:
 
 xs = {x for x, _ in points.keys()}
 ys = {y for _, y in points.keys()}
-#mn_x = min(xs)
 mx_x = max(xs) + 1
-#mn_y = min(ys)
 mx_y = max(ys) + 1
-#print(mn_x, mx_x, mn_y, mx_y)
 
 board = []
 for y in range(mx_y):
@@ -97,9 +94,10 @@ def map_adj(dist, locs):
             if board[n_y][n_x] != WALL:
                 if dist[n_y][n_x] is None:
                     dist[n_y][n_x] = dist[y][x] + 1
-                else:
-                    dist[n_y][n_x] = min(dist[y][x] + 1, dist[n_y][n_x])
-                n_locs.add((n_y, n_x))
+                    n_locs.add((n_y, n_x))
+                elif dist[y][x] + 1 < dist[n_y][n_x]:
+                    dist[n_y][n_x] = dist[y][x] + 1
+                    n_locs.add((n_y, n_x))
     return n_locs
 
 for line in board:
@@ -111,11 +109,21 @@ for y in range(mx_y):
 dist[o_y][o_x] = 0
 locs = {(o_y, o_x)}
 while dist[oxy[1]][oxy[0]] is None:
-        locs = map_adj(dist, locs)
+    locs = map_adj(dist, locs)
 
 p1 = dist[oxy[1]][oxy[0]]
 print(f'Part 1: {p1}')
 
+dist = []
+for y in range(mx_y):
+    dist.append([None] * mx_x)
+dist[oxy[1]][oxy[0]] = 0
+locs = {(oxy[1], oxy[0])}
+while locs:
+    locs = map_adj(dist, locs)
+
+for line in dist:
+    p2 = max(set(filter(lambda x: x is not None, line)) | {p2})
 
 
 print(f'Part 2: {p2}')
