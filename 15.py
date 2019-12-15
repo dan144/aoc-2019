@@ -17,56 +17,49 @@ E = 4
 WALL = 0
 OPEN = 1
 OXY = 2
+DROID = 3
 
 DX = {W: -1, E: 1}
 DY = {N: -1, S: 1}
 reverse = {N: S, S: N, W: E, E: W}
-points = {}
-o_x, o_y = 21, 21
-x, y = o_x, o_y
 
+points = {}
+o_x, o_y = 21, 21 # offset value to make minimum x, y values 0, 0
+
+x, y = o_x, o_y
 moves_left = {(x, y): [N, S, E, W]}
 moves = []
 comp = Intcode(inp)
 while moves_left:
     moves_here = moves_left[x, y]
     if not moves_here:
-        #print(x, y)
         if not moves:
-            break
-        move = moves.pop()
-        #print(f'back {move}')
-        x += DX.get(reverse[move], 0)
-        y += DY.get(reverse[move], 0)
-        comp.inputs.append(reverse[move])
+            break # when there's no moves forward and no moves back, it's done
+        move = reverse[moves.pop()]
+        x += DX.get(move, 0)
+        y += DY.get(move, 0)
+        comp.inputs.append(move)
         res = comp.run_until_output()
-        assert res
+        assert res  # moving backward should always work
         continue
-    #print(moves_here, moves)
-    move = moves_here.pop()
-    #print(move)
 
+    move = moves_here.pop()
     comp.inputs.append(move)
     res = comp.run_until_output()
+
     m_x = x + DX.get(move, 0)
     m_y = y + DY.get(move, 0)
-    #print(x, y, res)
-    if res == 0:
-        points[(m_x, m_y)] = WALL
-    else:
+    points[m_x, m_y] = res
+    if res:
         if res == 2:
             oxy = (m_x, m_y)
-            print(f'Found it at {oxy}')
-        points[(m_x, m_y)] = OPEN if res == 1 else OXY
         x, y = m_x, m_y
         moves.append(move)
         if (x, y) not in moves_left:
-            moves_left[(x, y)] = [N, E, S, W]
+            moves_left[x, y] = [N, E, S, W]
 
-xs = {x for x, _ in points.keys()}
-ys = {y for _, y in points.keys()}
-mx_x = max(xs) + 1
-mx_y = max(ys) + 1
+mx_x = max({x for x, _ in points.keys()}) + 1
+mx_y = max({y for _, y in points.keys()}) + 1
 
 board = []
 for y in range(mx_y):
@@ -74,7 +67,7 @@ for y in range(mx_y):
 
 for point, spot in points.items():
     board[point[1]][point[0]] = spot
-board[20][20] = 3
+board[o_y][o_x] = DROID
 
 def pretty(s):
     if s == WALL:
@@ -83,7 +76,10 @@ def pretty(s):
         return ' '
     if s == OXY:
         return '!'
-    return 'M'
+    return 'D'
+
+for line in board:
+    print(''.join(map(pretty, line)))
 
 def map_adj(dist, locs):
     n_locs = set()
@@ -99,9 +95,6 @@ def map_adj(dist, locs):
                     dist[n_y][n_x] = dist[y][x] + 1
                     n_locs.add((n_y, n_x))
     return n_locs
-
-for line in board:
-    print(''.join(map(pretty, line)))
 
 dist = []
 for y in range(mx_y):
