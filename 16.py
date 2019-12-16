@@ -29,6 +29,19 @@ print()
 p1 = ''.join(map(str, signal[:8]))
 print(f'Part 1: {p1}')
 
+loc = int(''.join(map(str, inp[:7])))
+# elem n only affect by things after since base pattern begins with n zeros
+signal = (copy(inp) * 10000)[loc:]
+items = len(signal)
+for phase in range(100):
+    sys.stdout.write(f'\rPhase {phase}')
+    n_pattern = []
+    value = sum(signal) # pattern is all ones from location of signal onward
+    for elem in range(items):
+        n_pattern.append(abs(value) % 10)
+        value -= signal[elem] # leave this element behind
+    signal = n_pattern
 
-
+print()
+p2 = ''.join(map(str, signal[:8]))
 print(f'Part 2: {p2}')
