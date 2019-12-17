@@ -37,7 +37,7 @@ n_args = {
 class Intcode:
     def __init__(self, reg, inputs=[]):
         self.reg = copy(reg)
-        self.reg.extend([0] * 2000)
+        self.reg.extend([0] * 20000)
         self.ip = 0
         self.base = 0
         self.done = False
@@ -149,6 +149,12 @@ class Intcode:
 
     def run_until_output(self):
         return self.run(until_output=True)
+
+    def run_collect_output(self):
+        d = []
+        while not self.done:
+            d.append(self.run_until_output())
+        return d
 
     def run_with_output(self):
         return self.run(display=True)
