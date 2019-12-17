@@ -112,6 +112,7 @@ while moves_left:
         moves.append(move)
         if (x, y) not in moves_left:
             moves_left[x, y] = [N, E, S, W]
+            moves_left[x, y].remove(reverse[move])
 
     if show_prog:
         display()
