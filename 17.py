@@ -24,46 +24,32 @@ board = disp(values)
 for r in range(len(board)):
     for c in range(len(board[r])):
         if board[r][c] == '#':
-            sur = 0
             for dx, dy in {(-1, 0), (1, 0), (0, -1), (0, 1)}:
                 try:
-                    if board[r+dx][c+dy] == '#':
-                        sur += 1
+                    if board[r+dx][c+dy] != '#':
+                        break
                 except:
-                    pass
-            if sur == 4: # intersection
+                    break
+            else:
                 board[r][c] = 'O'
                 p1 += r*c
 
 print(f'Part 1: {p1}')
 
-COMMA = 44
-NL = 10
-A = 65
-B = 66
-C = 67
-L = 76
-R = 82
-n = 110
-y = 121
-ONE = ord('1')
-TWO = ord('2')
-SIX = ord('6')
-EIGHT = ord('8')
-ZERO = ord('0')
-
-#A       A       C          B         C          B         C          B         C          A
 #R6L12R6 R6L12R6 L12R6L8L12 R12L10L10 L12R6L8L12 R12L10L10 L12R6L8L12 R12L10L10 L12R6L8L12 R6L12R6
+#A       A       C          B         C          B         C          B         C          A
 
-ROUTINES = [A, COMMA, A, COMMA, C, COMMA, B, COMMA, C, COMMA, B, COMMA, C, COMMA, B, COMMA, C, COMMA, A]
-RA = [R, COMMA, SIX, COMMA, L, COMMA, ONE, TWO, COMMA, R, COMMA, SIX]
-RB = [R, COMMA, ONE, TWO, COMMA, L, COMMA, ONE, ZERO, COMMA, L, COMMA, ONE, ZERO]
-RC = [L, COMMA, ONE, TWO, COMMA, R, COMMA, SIX, COMMA, L, COMMA, EIGHT, COMMA, L, COMMA, ONE, TWO]
+ROUTINES = 'A,A,C,B,C,B,C,B,C,A'
+RA = 'R,6,L,12,R,6'
+RB = 'R,12,L,10,L,10'
+RC = 'L,12,R,6,L,8,L,12'
+NL = '\n'
 
-cmds = ROUTINES + [NL] + RA + [NL] + RB + [NL] + RC + [NL, n, NL]
+cmd_str = ROUTINES + NL + RA + NL + RB + NL + RC + NL + 'n' + NL
+cmds = list(map(ord, cmd_str))
+
 comp = Intcode(inp, inputs=cmds)
 comp.reg[0] = 2
-values = comp.run_collect_output()
-p2 = values[-1]
+p2 = comp.run_collect_output()[-1]
 
 print(f'Part 2: {p2}')
