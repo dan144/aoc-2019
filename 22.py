@@ -10,44 +10,49 @@ with open('22', 'r') as f:
 p1 = 0
 p2 = 0
 
-def deal_into_new(deck):
-    deck = deck[::-1]
-    return deck
+def deal_into_new(inc, off):
+    inc *= -1
+    off += inc
+    return inc, off
 
-def cut(deck, N):
-    deck = deck[N:] + deck[:N]
-    return deck
+def cut(inc, off, N):
+    off += inc * N
+    return inc, off
 
-def deal_with_inc(deck, N):
-    cards = copy(deck)
-    deck = [0] * len(cards)
-    i = 0
-    for card in cards:
-        deck[i] = card
-        i = (i + N) % len(cards)
-    return deck
+def deal_with_inc(inc, off, N):
+    inc *= pow(N, CARDS-2, CARDS)
+    return inc, off
 
-def shuffle(deck):
+def shuffle():
+    inc = 1
+    off = 0
     for line in inp:
         if line.startswith('deal into'):
-            deck = deal_into_new(deck)
+            inc, off = deal_into_new(inc, off)
         elif line.startswith('cut'):
-            deck = cut(deck, int(line.split()[-1]))
+            inc, off = cut(inc, off, int(line.split()[-1]))
         elif line.startswith('deal with'):
-            deck = deal_with_inc(deck, int(line.split()[-1]))
-    return deck
+            inc, off = deal_with_inc(inc, off, int(line.split()[-1]))
+    return inc, off
 
 CARDS = 10007
-deck = list(range(CARDS))
-
-deck = shuffle(deck)
-if CARDS < 100:
-    print(deck)
+inc, off = shuffle()
+off = off * (1 - pow(inc, 1, CARDS)) * pow(1 - inc, CARDS-2, CARDS)
+inc = pow(inc, 1, CARDS)
 
 for i in range(CARDS):
-    if deck[i] == 2019:
+    if (off + i * inc) % CARDS == 2019:
         p1 = i
         break
+
 print(f'Part 1: {p1}')
 
+CARDS = 119315717514047
+SHUFFLES = 101741582076661
+
+inc, off = shuffle()
+off = off * (1 - pow(inc, SHUFFLES, CARDS)) * pow(1 - inc, CARDS-2, CARDS)
+inc = pow(inc, SHUFFLES, CARDS)
+
+p2 = (off + 2020 * inc) % CARDS
 print(f'Part 2: {p2}')
