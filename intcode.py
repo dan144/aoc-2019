@@ -150,6 +150,12 @@ class Intcode:
     def run_until_output(self):
         return self.run(until_output=True)
 
+    def run_until_n_output(self, n):
+        o = []
+        for _ in range(n):
+            o.append(self.run_until_output())
+        return o
+
     def run_collect_output(self):
         d = []
         while not self.done:

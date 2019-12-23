@@ -53,9 +53,8 @@ def get_points(c):
     x, y = 0, 0
     comp = Intcode(inp, [c])
     while not comp.done:
-        color = comp.run_until_output()
+        color, turn = comp.run_until_n_output(2)
         points[(x, y)] = color
-        turn = comp.run_until_output()
         direction = (direction + (1 if turn == RIGHT else -1)) % 4
         x += dx.get(direction, 0)
         y += dy.get(direction, 0)
