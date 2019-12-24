@@ -6,9 +6,15 @@ inp = []
 with open('24', 'r') as f:
     for line in f:
         inp.append(line)
+boards = []
 board = []
 for line in inp:
     board.append(list(line.strip()))
+boards.append(board)
+
+z = 1
+sy, sx = len(board), len(board[0])
+m = sy // 2
 
 p1 = 0
 p2 = 0
@@ -16,25 +22,90 @@ p2 = 0
 BUG = '#'
 SPACE = '.'
 
-def run(old):
-    n = []
-    for i in range(len(old)):
-        n.append([0] * len(old[i]))
+def b_count(b):
+    c = 0
+    for line in b:
+        for char in line:
+            if char == BUG:
+                c += 1
+    return c
 
-    for y in range(len(old)):
-        for x in range(len(old[y])):
-            count = 0
-            for dy, dx in {(-1, 0), (0, -1), (0, 1), (1, 0)}:
-                if x + dx < 0 or x + dx >= len(old[y]) or y + dy < 0 or y + dy >= len(old):
+def count_all(bs):
+    c = 0
+    for b in bs:
+        c += b_count(b)
+    return c
+
+def run(olds, z):
+    a = []
+    for l in range(sy):
+        a.append(['.'] * sx)
+    olds.insert(0, deepcopy(a))
+    olds.append(deepcopy(a))
+
+    z += 1
+
+    ns = []
+    for l in range(len(olds)):
+        ns.append([])
+        for i in range(sy):
+            ns[-1].append(['.'] * sx)
+
+    for l in range(len(ns)):
+        for y in range(sy):
+            for x in range(sx):
+                if y == m and x == m:
                     continue
-                count += 1 if old[y+dy][x+dx] == BUG else 0
-            if old[y][x] == BUG and count != 1:
-                n[y][x] = SPACE
-            elif old[y][x] == SPACE and count in {1, 2}:
-                n[y][x] = BUG
-            else:
-                n[y][x] = old[y][x]
-    return n
+                check = {(0, -1, 0), (0, 0, -1), (0, 0, 1), (0, 1, 0)}
+                if y == m:
+                    if x == m + 1:
+                        check.remove((0, 0, -1))
+                        check.update({(1, ny, sx-1) for ny in range(sy)})
+                    elif x == m - 1:
+                        check.remove((0, 0, 1))
+                        check.update({(1, ny, 0) for ny in range(sy)})
+                elif x == m:
+                    if y == m + 1:
+                        check.remove((0, -1, 0))
+                        check.update({(1, sy-1, nx) for nx in range(sx)})
+                    elif y == m - 1:
+                        check.remove((0, 1, 0))
+                        check.update({(1, 0, nx) for nx in range(sx)})
+
+                if y == 0:
+                    check.add((-1, m-1, m))
+                elif y == sy - 1:
+                    check.add((-1, m+1, m))
+
+                if x == 0:
+                    check.add((-1, m, m-1))
+                elif x == sx - 1:
+                    check.add((-1, m, m+1))
+
+                count = 0
+                for dl, dy, dx in check:
+                    if l + dl < 0 or l + dl >= len(olds):
+                        continue
+                    if dl == 0:
+                        if x + dx < 0 or x + dx >= sx or y + dy < 0 or y + dy >= sy:
+                            continue
+                    #print(olds[l+dl])
+                    if dl == 0:
+                        count += 1 if olds[l+dl][y+dy][x+dx] == BUG else 0
+                    else:
+                        count += 1 if olds[l+dl][dy][dx] == BUG else 0
+                if olds[l][y][x] == BUG and count != 1:
+                    ns[l][y][x] = SPACE
+                elif olds[l][y][x] == SPACE and count in {1, 2}:
+                    ns[l][y][x] = BUG
+                else:
+                    ns[l][y][x] = olds[l][y][x]
+    #if b_count(ns[0]) == 0:
+    #    ns = ns[1:]
+    #    z -= 1
+    #if b_count(ns[-1]) == 0:
+    #    ns = ns[:-1]
+    return ns, z
 
 def score(board):
     s = 0
@@ -51,22 +122,25 @@ def disp(board):
     for line in board:
         print(''.join(line))
 
-disp(board)
-scores = set()
-s = score(board)
-scores.add(s)
-while True:
-    board = run(board)
-    p1 = score(board)
-    if p1 in scores:
-        break
-    scores.add(p1)
-    disp(board)
+def disp_all(boards):
+    for board in boards:
+        print()
+        disp(board)
+    print('---')
 
-disp(board)
-#not 528328671
+#scores = set()
+#s = score(board)
+#scores.add(s)
+#while True:
+#    boards, _ = run(boards, 0)
+#    p1 = score(board)
+#    if p1 in scores:
+#        break
+#    scores.add(p1)
 print(f'Part 1: {p1}')
 
+for mn in range(200):
+    boards, z = run(boards, z)
 
-
+p2 = count_all(boards)
 print(f'Part 2: {p2}')
